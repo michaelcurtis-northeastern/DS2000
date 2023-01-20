@@ -33,7 +33,7 @@ def main():
     # Compute -- Converting user input to 0-10 scale
     traffic_convert = (10 - traffic)
     wind_speed_convert = (10 - (wind_speed - 5))
-    swells_convert = (10 - swells) // 10
+    swells_convert = (swells_convert * -10) + 10
     
     # Compute -- weighted average
     
