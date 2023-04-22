@@ -1,69 +1,85 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-        Michael Curtis
-        DS2000
-        Homework 2
-        Spring 2023
-        race.py
-        
-        Test Case:
-            Laney's location: (2,2)
-            Kayla's location: (5,2)
-            Cooper's location: (5,5)
-            Euclidean distance (Laney): (5 - 2) ** 2 + (5 - 2) ** 2
-            Euclidean distance (Kayla): (5 - 5) ** 2 + (5 - 2) ** 2 
-                    take sqrt of this value to get 4.242 & 3
-            Time from Cooper(Laney): 4.243 * 10 min = 42.246 minutes
-            Time from Cooper(Kayla): 3 * 10 min = 30 minutes
-        
+      Michael Curtis    
+      DS2000
+      Homework #7
+      Spring 2023
+      race.py
+
 """
 
-FILE_NAME = "locations.txt"
+
+RUNNER_FILE = "runner_data.txt"
+
+COLORS = ['blue', 'magenta', 'green', 'orange', 'grey']
+
+import matplotlib.pyplot as plt
+
+# from [filename] inport [classname]
+from runner import Runner
 
 def main():
+
+    # Create an empty list to append runners
+    runners = []
     
-    # Gather data -- open 'locations.txt' file 
+    # Intiialize a counter variable for colors & position
+    counter = 0
     
-    with open(FILE_NAME, "r") as infile:
+    # Gather Data - Read in the file, skip the header, and assume one
+    # runner per line
+    with open(RUNNER_FILE, "r") as infile:
+        header = infile.readline()
+       
+        for line in infile:
+            line = line.strip().split(' ')
+            runner_name = ' '.join(line[0:2])
+            
+            # For each line in the file, create a Runner object, assign colors
+            # and y-values for the plot, and keep all Runners in a list
+            runner = Runner(runner_name, color = COLORS[counter], 
+                            y = counter + 1)
+            counter += 1
+            
+            # Iterate over runs, adding one run to the runs list
+            # add distance to each runner individual list of runs
+            for run in line[2:]:
+                runner.add_run(float(run))
+            runners.append(runner)
+    
+    # Initialize the max distance ran and best runner             
+    max_distance = 0
+    best_runner = None
+    
+    # Find the runner who ran farthest and max distance
+    for runner in runners:
+        total_distance = runner.get_total_distance()
+   
+        if total_distance > max_distance:
+            max_distance = total_distance
+            winning_runner = runner
+   
+   # Iterate over every day in Feb
+    for day in range(1, 29):
         
-        # Name 1 -- Kayla 
-        name1 = infile.readline().strip()
-        name1_x = int(infile.readline())
-        name1_y = int(infile.readline())
+        # Create consistent xlim and ylim values for each plot
+        plt.xlim(0, max_distance + 10)
+        plt.ylim(-1, 9)
         
-        # Name 2 -- Laney
-        name2 = infile.readline().strip()
-        name2_x = int(infile.readline())
-        name2_y = int(infile.readline())
-    
-    # Gather data -- ask user to put in Cooper's coordinates
-    
-    cooper_x = int(input("What is Cooper's x-coordinate?\n"))
-    cooper_y = int(input("What is Cooper's y-coordinate?\n"))
-    
-    # Compute -- Calculate distance between Cooper and Kayla & 
-    # Cooper and Laney
-    
-    distance_1 = (cooper_x - name1_x) ** 2 + (cooper_y - name1_y) ** 2
-    sqrt_1 = distance_1 ** .5
-    
-    distance_2 = (cooper_x - name2_x) ** 2 + (cooper_y - name2_y) ** 2
-    sqrt_2 = distance_2 ** .5
-    
-    time_1 = sqrt_1 * 10
-    time_2 = sqrt_2 * 10
-    
-    # Communicate -- print distance to Cooper from each person
-    
-    print(name1, "is ", round(sqrt_1, 3), "units & ",\
-          round(time_1, 3), "minutes away from Cooper.")
-    
-    print(name2, "is ", round(sqrt_2, 3), "units & ",\
-          round(time_2, 3), "minutes away from Cooper.")
-    
-    
+        # Generate plots, rendering all Runner objects and updating their 
+        # x-values with daily run amounts 
+        for runner in runners:
+            runner.move_next()
+            runner.draw()
+            
+        # Add a consistent legend, xlabel, and title
+        plt.xlabel('Miles Traveled')
+        plt.title('Miles Covered by Runners in February') 
+        plt.legend(fontsize = 9)
+        plt.show()
+            
+    # Print name of the runner who ran the most miles in February
+    print(winning_runner)
+
 main()
-
-
-
